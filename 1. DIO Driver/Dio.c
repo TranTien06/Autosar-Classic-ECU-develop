@@ -257,4 +257,5 @@ Dio_LevelType Dio_FlipChannel(Dio_ChannelType ChannelId) {
         Dio_WriteChannel(ChannelId, STD_HIGH);
         return STD_HIGH;
     }
+    hi
 }
