@@ -1,8 +1,3 @@
-Hello hi ba bon nam sau
-xács
-saus
-saus
-saus
 /**********************************************************
  * @file Dio.c
  * @brief Digital Input/Output (DIO) Driver Source File
@@ -263,13 +258,3 @@ Dio_LevelType Dio_FlipChannel(Dio_ChannelType ChannelId) {
         return STD_HIGH;
     }
 }
-
-saus
-saus
-saus
-saus
-saus
-saus
-saus
-saus
-sau
