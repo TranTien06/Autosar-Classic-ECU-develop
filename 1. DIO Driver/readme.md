@@ -6,4 +6,5 @@ Dưới đây là sơ đồ kết nối:
 
 Và đây là ảnh chụp thực tế:
 
-![Ảnh thực tế](1.%20DIO%20Driver/images/photo.png)
+![Mô tả ảnh DIO](<images/1670872051060.jpeg>)
+
