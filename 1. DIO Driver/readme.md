@@ -1,21 +1,5 @@
 # AUTOSAR Classic ECU Development - Ví dụ DIO Driver cho STM32F103
 
-## Mục lục
-- [AUTOSAR Classic ECU Development - Ví dụ DIO Driver cho STM32F103](#autosar-classic-ecu-development---ví-dụ-dio-driver-cho-stm32f103)
-  - [Mục lục](#mục-lục)
-  - [Giới thiệu](#giới-thiệu)
-  - [Yêu cầu hệ thống](#yêu-cầu-hệ-thống)
-  - [Cấu trúc thư mục](#cấu-trúc-thư-mục)
-  - [Hướng dẫn build và nạp firmware](#hướng-dẫn-build-và-nạp-firmware)
-    - [1. Cài đặt môi trường](#1-cài-đặt-môi-trường)
-    - [2. Build Firmware](#2-build-firmware)
-    - [3. Nạp Firmware](#3-nạp-firmware)
-    - [4. Xóa File Build](#4-xóa-file-build)
-  - [Giải thích Makefile](#giải-thích-makefile)
-  - [Mở rộng dự án](#mở-rộng-dự-án)
-  - [Bản quyền](#bản-quyền)
-  - [Liên hệ](#liên-hệ)
-
 ## Giới thiệu
 
 Dự án này cung cấp một ví dụ chuẩn về **DIO Driver** theo tiêu chuẩn AUTOSAR Classic MCAL (Microcontroller Abstraction Layer) dành cho vi điều khiển STM32F103 (Blue Pill). Dự án sử dụng **CMSIS** và **STM32 Standard Peripheral Library (SPL)**, với các module Port và Dio được phân tách rõ ràng, dễ bảo trì. Tất cả các file đầu ra của quá trình build (`.o`, `.elf`, `.bin`) được lưu trữ trong thư mục `Tools/` để quản lý hiệu quả.
@@ -161,9 +145,6 @@ Lệnh này sẽ xóa sạch các file `.o`, `.elf`, `.bin` để bắt đầu l
 - **Tích hợp với IDE**: Cấu trúc dự án tương thích với CMake hoặc các IDE như VSCode, Keil, hoặc IAR.
 - **Tái sử dụng**: Thiết kế module hóa giúp dễ dàng mở rộng cho các dự án STM32 khác.
 
-## Bản quyền
-
-Dự án dựa trên **STM32F10x Standard Peripheral Library** của STMicroelectronics. Mã nguồn mở cho mục đích học tập và nghiên cứu. Mọi đóng góp hoặc cải tiến đều được hoan nghênh!
 
 ## Liên hệ
 
