@@ -46,7 +46,7 @@ AUTOSAR-Classic-ECU-Development/
     │       ├── stm32f10x_rcc.c
     │       └── system_stm32f10x.c
     ├── Startup/
-    │   └── startup_stm32f10x_md.s
+    │   └── startup_stm32f103.s
     ├── Tools/
     ├── main.c
     └── makefile
