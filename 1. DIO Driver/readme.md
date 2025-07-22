@@ -1,148 +1,170 @@
-# AUTOSAR-Classic-ECU-Development - DIO Driver Example for STM32F103
+# AUTOSAR Classic ECU Development - Ví dụ DIO Driver cho STM32F103
 
 ## Mục lục
-- [AUTOSAR-Classic-ECU-Development - DIO Driver Example for STM32F103](#autosar-classic-ecu-development---dio-driver-example-for-stm32f103)
+- [AUTOSAR Classic ECU Development - Ví dụ DIO Driver cho STM32F103](#autosar-classic-ecu-development---ví-dụ-dio-driver-cho-stm32f103)
   - [Mục lục](#mục-lục)
   - [Giới thiệu](#giới-thiệu)
   - [Yêu cầu hệ thống](#yêu-cầu-hệ-thống)
   - [Cấu trúc thư mục](#cấu-trúc-thư-mục)
   - [Hướng dẫn build và nạp firmware](#hướng-dẫn-build-và-nạp-firmware)
-    - [1. Build firmware](#1-build-firmware)
-
----
+    - [1. Cài đặt môi trường](#1-cài-đặt-môi-trường)
+    - [2. Build Firmware](#2-build-firmware)
+    - [3. Nạp Firmware](#3-nạp-firmware)
+    - [4. Xóa File Build](#4-xóa-file-build)
+  - [Giải thích Makefile](#giải-thích-makefile)
+  - [Mở rộng dự án](#mở-rộng-dự-án)
+  - [Bản quyền](#bản-quyền)
+  - [Liên hệ](#liên-hệ)
 
 ## Giới thiệu
 
-Ví dụ chuẩn về **DIO Driver** theo phong cách AUTOSAR Classic MCAL cho dòng STM32F103 (Blue Pill).  
-Project sử dụng **CMSIS**, **StdPeriph (SPL)**, chia module Port/Dio rõ ràng.  
-**Tất cả file build (.o, .elf, .bin...) được đặt trong thư mục `Tools/`** để thuận tiện quản lý.
+Dự án này cung cấp một ví dụ chuẩn về **DIO Driver** theo tiêu chuẩn AUTOSAR Classic MCAL (Microcontroller Abstraction Layer) dành cho vi điều khiển STM32F103 (Blue Pill). Dự án sử dụng **CMSIS** và **STM32 Standard Peripheral Library (SPL)**, với các module Port và Dio được phân tách rõ ràng, dễ bảo trì. Tất cả các file đầu ra của quá trình build (`.o`, `.elf`, `.bin`) được lưu trữ trong thư mục `Tools/` để quản lý hiệu quả.
 
----
+Ví dụ bao gồm một ứng dụng đơn giản điều khiển LED nhấp nháy, minh họa cách sử dụng DIO driver theo cấu trúc AUTOSAR.
 
 ## Yêu cầu hệ thống
 
-- **Toolchain:** [GNU Arm Embedded Toolchain (arm-none-eabi-gcc)](https://developer.arm.com/downloads/-/gnu-rm)
-- **OpenOCD** để nạp firmware qua ST-Link
-- **make** (có sẵn trên Linux/macOS, với Windows cài qua MinGW hoặc WSL)
-- **Board:** STM32F103C8T6 (Blue Pill)
-
----
+- **Toolchain**: [GNU Arm Embedded Toolchain (arm-none-eabi-gcc)](https://developer.arm.com/downloads/-/gnu-rm)
+- **OpenOCD**: Công cụ để nạp firmware qua ST-Link
+- **Make**: Có sẵn trên Linux/macOS; với Windows, cài đặt qua MinGW hoặc WSL
+- **Phần cứng**: Board STM32F103C8T6 (Blue Pill)
+- **Thiết bị lập trình**: ST-Link (v2 hoặc tương thích)
+- **Hệ điều hành**: Linux, macOS, hoặc Windows (khuyến nghị dùng WSL trên Windows để đơn giản hóa)
 
 ## Cấu trúc thư mục
 
+```
 AUTOSAR-Classic-ECU-Development/
 └── 1. DIO Driver/
-├── CMSIS/
-│ ├── cmsis_compiler.h
-│ ├── cmsis_gcc.h
-│ ├── cmsis_version.h
-│ └── core_cm3.h
-├── Config/
-├── Linker/
-│ └── stm32f103.ld
-├── MCAL/
-│ ├── Dio/
-│ │ ├── Dio.c
-│ │ └── Dio.h
-│ └── Port/
-│ ├── Port.c
-│ └── Port.h
-├── SPL/
-│ ├── inc/
-│ │ ├── stm32f10x_gpio.h
-│ │ ├── stm32f10x_rcc.h
-│ │ ├── stm32f10x.h
-│ │ └── system_stm32f10x.h
-│ └── src/
-│ ├── stm32f10x_gpio.c
-│ ├── stm32f10x_rcc.c
-│ └── system_stm32f10x.c
-├── Startup/
-│ └── startup_stm32f10x_md.s
-├── Tools/
-├── main.c
-└── makefile
+    ├── CMSIS/
+    │   ├── cmsis_compiler.h
+    │   ├── cmsis_gcc.h
+    │   ├── cmsis_version.h
+    │   └── core_cm3.h
+    ├── Config/
+    ├── Linker/
+    │   └── stm32f103.ld
+    ├── MCAL/
+    │   ├── Dio/
+    │   │   ├── Dio.c
+    │   │   └── Dio.h
+    │   └── Port/
+    │       ├── Port.c
+    │       └── Port.h
+    ├── SPL/
+    │   ├── inc/
+    │   │   ├── stm32f10x_gpio.h
+    │   │   ├── stm32f10x_rcc.h
+    │   │   ├── stm32f10x.h
+    │   │   └── system_stm32f10x.h
+    │   └── src/
+    │       ├── stm32f10x_gpio.c
+    │       ├── stm32f10x_rcc.c
+    │       └── system_stm32f10x.c
+    ├── Startup/
+    │   └── startup_stm32f10x_md.s
+    ├── Tools/
+    ├── main.c
+    └── makefile
+```
 
-markdown
-Sao chép
-Chỉnh sửa
-
-- **CMSIS/**: ARM core CMSIS headers  
-- **MCAL/Dio, MCAL/Port**: Code driver DIO/Port abstraction  
-- **SPL/**: STM32 Standard Peripheral Library  
-- **Startup/**: File startup assembly cho GCC  
-- **Linker/**: Linker script  
-- **Tools/**: Chứa toàn bộ file build (`.o`, `.elf`, `.bin`)  
-- **main.c**: Code ứng dụng mẫu  
-- **makefile**: Script build chính
-
----
+- **CMSIS/**: Chứa các file header của ARM Cortex-M3 CMSIS
+- **Config/**: Thư mục chứa các file cấu hình dự án
+- **Linker/**: File linker script cho STM32F103
+- **MCAL/Dio, MCAL/Port**: Các driver DIO và Port tuân theo chuẩn AUTOSAR
+- **SPL/**: Thư viện STM32 Standard Peripheral Library
+- **Startup/**: File mã assembly khởi động cho GCC
+- **Tools/**: Thư mục chứa các file build (`.o`, `.elf`, `.bin`)
+- **main.c**: Mã ứng dụng mẫu (LED nhấp nháy)
+- **makefile**: Script để tự động hóa quá trình build
 
 ## Hướng dẫn build và nạp firmware
 
-### 1. Build firmware
+### 1. Cài đặt môi trường
 
-Mở terminal/cmd, chuyển vào thư mục `1. DIO Driver/` rồi chạy:
+1. **Cài đặt GNU Arm Toolchain**:
+   - Tải và cài đặt [GNU Arm Embedded Toolchain](https://developer.arm.com/downloads/-/gnu-rm) phù hợp với hệ điều hành.
+   - Thêm đường dẫn của toolchain (thư mục `bin/`) vào biến môi trường `PATH`.
+   - Kiểm tra cài đặt bằng lệnh:
+     ```sh
+     arm-none-eabi-gcc --version
+     ```
 
+2. **Cài đặt OpenOCD**:
+   - Tải và cài đặt OpenOCD từ [trang chính thức](http://openocd.org/) hoặc qua gói quản lý (ví dụ: `sudo apt install openocd` trên Ubuntu).
+   - Đảm bảo ST-Link được nhận diện bởi hệ thống.
+
+3. **Cài đặt Make**:
+   - Trên Linux/macOS: Make thường đã có sẵn. Kiểm tra bằng lệnh `make --version`.
+   - Trên Windows: Cài MinGW hoặc dùng WSL và chạy `sudo apt install make` (trên WSL).
+
+4. **Chuẩn bị phần cứng**:
+   - Kết nối boardim với board STM32F103 qua ST-Link.
+   - Đảm bảo board Blue Pill được cấp nguồn (thông qua USB hoặc nguồn ngoài).
+
+### 2. Build Firmware
+
+1. Mở terminal (hoặc command prompt trên Windows) và chuyển đến thư mục `1. DIO Driver/`:
+   ```sh
+   cd path/to/AUTOSAR-Classic-ECU-Development/1.\ DIO\ Driver/
+   ```
+
+2. Chạy lệnh build:
+   ```sh
+   make
+   ```
+
+3. Sau khi build thành công, các file sau sẽ được tạo trong thư mục `Tools/`:
+   - `blinkled.elf`: File định dạng ELF để debug
+   - `blinkled.bin`: File nhị phân để nạp vào board
+   - Các file object (`.o`): File trung gian của quá trình biên dịch
+
+**Lưu ý**: Nếu gặp lỗi khi build, kiểm tra:
+- Đường dẫn toolchain đã được thiết lập đúng.
+- Các file trong thư mục `CMSIS/`, `SPL/`, và `Startup/` không bị thiếu.
+
+### 3. Nạp Firmware
+
+1. Kết nối ST-Link với board STM32F103 và máy tính.
+2. Chạy lệnh để nạp firmware:
+   ```sh
+   make flash
+   ```
+
+3. Kiểm tra kết quả:
+   - Nếu thành công, LED trên board sẽ nhấp nháy theo logic trong `main.c`.
+   - Nếu thất bại, kiểm tra:
+     - ST-Link có được nhận diện không (dùng lệnh `openocd -f interface/stlink.cfg -f target/stm32f1x.cfg` để kiểm tra).
+     - File `makefile` có cấu hình OpenOCD đúng không (đặc biệt với các board khác Blue Pill).
+
+### 4. Xóa File Build
+
+Để xóa tất cả file build trong thư mục `Tools/`:
 ```sh
-make
-Sau khi build xong sẽ xuất hiện các file:
-
-Tools/blinkled.elf: file .elf (có thể debug)
-
-Tools/blinkled.bin: file nhị phân để nạp board
-
-Các file object .o đều nằm trong Tools/
-
-2. Nạp firmware vào board (cần ST-Link)
-sh
-Sao chép
-Chỉnh sửa
-make flash
-Lưu ý:
-
-Đảm bảo cắm ST-Link vào board, OpenOCD nhận đúng cổng.
-
-Nếu dùng board khác, có thể cần chỉnh dòng openocd trong makefile cho phù hợp cấu hình.
-
-3. Xóa file build cũ
-sh
-Sao chép
-Chỉnh sửa
 make clean
-Tất cả file build trong Tools/ sẽ được xóa sạch.
+```
 
-Giải thích Makefile
-BUILDDIR = Tools: Toàn bộ file build nằm trong thư mục này
+Lệnh này sẽ xóa sạch các file `.o`, `.elf`, `.bin` để bắt đầu lại quá trình build.
 
-CFLAGS, LDFLAGS: Thiết lập flags phù hợp cho project STM32/embedded (không stdlib, build nhúng, đúng chip)
+## Giải thích Makefile
 
-Các rule: Tự động tạo thư mục, build từng object vào đúng vị trí, link ra ELF, objcopy sang BIN
+- **BUILDDIR = Tools**: Chỉ định thư mục chứa các file build.
+- **CFLAGS, LDFLAGS**: Các cờ biên dịch và liên kết được thiết lập cho dự án nhúng STM32 (tắt stdlib, tối ưu hóa cho chip STM32F103).
+- **Các rule**:
+  - `make`: Biên dịch và liên kết để tạo các file `.elf` và `.bin`.
+  - `make flash`: Nạp firmware vào board qua ST-Link.
+  - `make clean`: Xóa tất cả file trong thư mục `Tools/`.
 
-make: build firmware
+## Mở rộng dự án
 
-make flash: nạp firmware
+- **Thêm kênh DIO/Port**: Có thể thêm các kênh mới trong `MCAL/Dio/` hoặc `MCAL/Port/` để hỗ trợ thêm chân GPIO hoặc tính năng.
+- **Tích hợp với IDE**: Cấu trúc dự án tương thích với CMake hoặc các IDE như VSCode, Keil, hoặc IAR.
+- **Tái sử dụng**: Thiết kế module hóa giúp dễ dàng mở rộng cho các dự án STM32 khác.
 
-make clean: xóa file build
+## Bản quyền
 
-Mở rộng
-Có thể thêm mới hoặc mở rộng DIO/Port channel trong MCAL/
+Dự án dựa trên **STM32F10x Standard Peripheral Library** của STMicroelectronics. Mã nguồn mở cho mục đích học tập và nghiên cứu. Mọi đóng góp hoặc cải tiến đều được hoan nghênh!
 
-Dễ tích hợp với CMake hoặc các IDE như VSCode
+## Liên hệ
 
-Cấu trúc rõ ràng, dễ chia sẻ, nhân bản cho dự án lớn hơn
-
-Bản quyền
-Dựa trên STMicroelectronics STM32F10x StdPeriph Lib
-
-Project mở mã nguồn cho mục đích học tập, nghiên cứu.
-
-Mọi góp ý/cải tiến vui lòng liên hệ Hala Academy!
-
-yaml
-Sao chép
-Chỉnh sửa
-
----
-
-**Nếu muốn bổ sung hình ảnh mạch hoặc đoạn code demo blink LED mẫu, bạn chỉ việc thêm vào các section trên!**
+Vui lòng liên hệ **Hala Academy** để gửi phản hồi hoặc đề xuất cải tiến.
