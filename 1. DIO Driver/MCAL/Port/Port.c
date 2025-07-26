@@ -1,49 +1,97 @@
 #include "Port.h"
-#include "stm32f10x_gpio.h"
-#include "stm32f10x_rcc.h"
+void Port_Init (const Port_ConfigType* ConfigPtr)
+{   
+        GPIO_TypeDef *GPIO_Port;
+        GPIO_Port = PORT_GET_PORTID(ConfigPtr->PortNum);
+        switch (ConfigPtr->PortNum)
+        {
+        case 1:
+            RCC_APB2ENR |= 4;
+            break;
+        case 2:
+            RCC_APB2ENR |= (1<<3);
+            break;
+        case 3:
+            RCC_APB2ENR |= (1<<4);
+            break;    
+        default:
+            break;
+        }
 
-// Mapping cấu hình chân tới GPIO vật lý
-typedef struct {
-    GPIO_TypeDef* port;
-    uint16_t      pin;
-} Port_ChannelConfigType;
+    if(ConfigPtr->Mode == PORT_PIN_MODE_GPIO)
+    {   
+        if(ConfigPtr->AlternateFunction)
+        {
+            RCC->APB2ENR |= 1;
+        }
+        switch(ConfigPtr->Direction)
+        {
+            volatile unsigned long * ODR;
+            unsigned long offset = 0x03; 
+            ODR = (volatile unsigned long * )(&GPIO_Port);
+            
+            case PORT_PIN_IN:
+                if(ConfigPtr->pull == PORT_NO_PULL)
+                {
+                        init_GP(ConfigPtr->PortNum,ConfigPtr->PinNum,PORT_PIN_IN,I_F);
+                }
+                else if(ConfigPtr->pull == PORT_PULL_UP)
+                {
+                    init_GP(ConfigPtr->PortNum,ConfigPtr->PinNum,PORT_PIN_IN,I_PP);
+                    *ODR |= (1 << ConfigPtr->PinNum);
+                }
+                else if(ConfigPtr->pull == PORT_PULL_DOWN)
+                {
+                    init_GP(ConfigPtr->PortNum,ConfigPtr->PinNum,PORT_PIN_IN,I_PP);
+                    *ODR &= ~(1 << ConfigPtr->PinNum);
+                }
+                break;
+            case PORT_PIN_OUT:
+                if(ConfigPtr->AlternateFunction)
+                {
+                    init_GP(ConfigPtr->PortNum,ConfigPtr->PinNum,ConfigPtr->OutputSpeed,O_AF_PP);
+                }
+                else
+                {
+                    init_GP(ConfigPtr->PortNum,ConfigPtr->PinNum,ConfigPtr->OutputSpeed,O_GP_PP);
+                }
+                break;
+            default: break;
+        }
 
-static const Port_ChannelConfigType Port_ChannelConfig[] = {
-    // PORT_CHANNEL_LED:
-    { GPIOA, GPIO_Pin_5 }
-    // Thêm chân khác nếu có
-};
-
-// Khởi tạo các chân cần thiết
-void Port_Init(void)
-{
-    GPIO_InitTypeDef gpio_init;
-
-    // Enable clock GPIOA (mở rộng thì phải enable từng port dùng)
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-
-    // PA5: Output Push-Pull 2MHz (LED)
-    gpio_init.GPIO_Pin = GPIO_Pin_5;
-    gpio_init.GPIO_Mode = GPIO_Mode_Out_PP;
-    gpio_init.GPIO_Speed = GPIO_Speed_2MHz;
-    GPIO_Init(GPIOA, &gpio_init);
-
-    // Thêm config cho các chân khác nếu có
-}
-
-// API nâng cao: Đổi mode pin động (ít dùng, tham khảo)
-void Port_SetPinMode(Port_ChannelType channel, Port_PinModeType mode)
-{
-    GPIO_InitTypeDef gpio_init;
-    gpio_init.GPIO_Pin = Port_ChannelConfig[channel].pin;
-
-    if (mode == PORT_PIN_MODE_OUTPUT) {
-        gpio_init.GPIO_Mode = GPIO_Mode_Out_PP;
-        gpio_init.GPIO_Speed = GPIO_Speed_2MHz;
-    } else if (mode == PORT_PIN_MODE_INPUT) {
-        gpio_init.GPIO_Mode = GPIO_Mode_IN_FLOATING;
     }
-    // Có thể bổ sung các mode khác (pull-up, analog...)
-
-    GPIO_Init(Port_ChannelConfig[channel].port, &gpio_init);
+    else if(ConfigPtr->Mode == PORT_PIN_MODE_ADC1)
+    {
+        RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;    
+        if((ConfigPtr->PortNum == PA)&&((ConfigPtr->PinNum >= PIN0 && ConfigPtr->PinNum <= PIN10)))
+        {
+            GPIOA->CRL &= ~(0xF << ConfigPtr->PinNum); // cau hình cho ngo vao che do ADC
+        } 
+        else if((ConfigPtr->PortNum == PB)&&((ConfigPtr->PinNum >= PIN0 && ConfigPtr->PinNum <= PIN1)))
+        {
+            GPIOB->CRL &= ~(0xF << ConfigPtr->PinNum);
+        }
+        else if((ConfigPtr->PortNum == PC)&&((ConfigPtr->PinNum >= PIN0 && ConfigPtr->PinNum <= PIN5)))
+        {
+            GPIOC->CRL &= ~(0xF << ConfigPtr->PinNum);
+        }
+        else return; 
+    }
 }
+
+void Port_SetPinDirection (Port_PinType Pin, Port_PinDirectionType Direction)
+{
+    /*từ Pin tính ra dc port và pin luôn từ định nghĩa của kiểu dữ liệu*/
+    if(Pin == 45)
+    {
+        if(Direction == PORT_PIN_IN)
+        {
+            init_GP(PC,13,OUT50,O_GP_PP);
+        }
+        else
+        {
+            init_GP(PC,13,IN,I_PP);
+        }
+    }
+}
+

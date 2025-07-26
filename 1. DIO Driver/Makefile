@@ -32,20 +32,16 @@ SRCS_S = Startup/startup_stm32f103.s
 # List of object files (đặt trong BUILDDIR)
 OBJS = $(patsubst %.c,$(BUILDDIR)/%.o,$(SRCS_C)) $(patsubst %.s,$(BUILDDIR)/%.o,$(SRCS_S))
 
-# Tự tạo thư mục build nếu chưa có
-$(shell mkdir -p $(BUILDDIR))
-
 # Mục tiêu mặc định
 all: $(TARGET).bin
 
 # Biên dịch file C (object .o nằm trong Tools/)
 $(BUILDDIR)/%.o: %.c
-	@mkdir -p $(dir $@)
+	@if not exist $(dir $@) mkdir $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
-
 # Biên dịch file ASM (object .o nằm trong Tools/)
 $(BUILDDIR)/%.o: %.s
-	@mkdir -p $(dir $@)
+	@if not exist $(dir $@) mkdir $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Link thành ELF (trong Tools/)
@@ -62,7 +58,8 @@ flash: $(TARGET).bin
 
 # Xóa tất cả file build trong Tools/
 clean:
-	rm -rf $(BUILDDIR)/*.o $(TARGET).elf $(TARGET).bin
-	find $(BUILDDIR) -name "*.o" -type f -delete
+	del /Q $(BUILDDIR)\*.o
+	del /Q $(BUILDDIR)\blinkled.elf
+	del /Q $(BUILDDIR)\blinkled.bin
 
 .PHONY: all clean flash
